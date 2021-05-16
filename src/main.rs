@@ -2,10 +2,12 @@ use std::collections::hash_map::DefaultHasher;
 use std::env;
 use std::fs;
 use std::hash::{Hash, Hasher};
+use std::io;
 use std::path::PathBuf;
 use std::time::SystemTime;
 use structopt::StructOpt;
 use users::get_current_username;
+extern crate fs_extra;
 
 #[derive(StructOpt)]
 struct Cli {
@@ -45,8 +47,20 @@ fn commit(input_path: PathBuf, message: String) {
     commit.hash(&mut hasher);
 
     let hash = hasher.finish();
-
-    println!("{0}", hash);
+    let entries = fs::read_dir("./")
+        .unwrap()
+        .map(|res| res.map(|e| e.path()))
+        .filter(|res| res.as_ref().unwrap().to_str().unwrap() != "./.repo")
+        .collect::<Result<Vec<_>, io::Error>>()
+        .unwrap();
+    let mut output_path = input_path.clone();
+    output_path.push(".repo/snapshots");
+    output_path.push(hash.to_string());
+    let output_copy = output_path.clone();
+    fs_extra::dir::create(output_copy, false).expect("Error while creating output directory");
+    let options = fs_extra::dir::CopyOptions::new();
+    fs_extra::copy_items(&entries, output_path, &options)
+        .expect("Error while copying to snapshot directory");
 }
 
 fn main() {
