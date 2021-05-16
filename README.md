@@ -4,7 +4,9 @@ LockD is my attempt to build/learn about version control systems from scratch us
 
 I'm using [The Git Parable](https://tom.preston-werner.com/2009/05/19/the-git-parable.htm) as inspiration.
 
-My Hope is to build the following features
+Also using this as an opportunity to learn rust.
+
+My Hope is to build the following features:
 
 - Snapshots
 - Tagging
